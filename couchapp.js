@@ -1,5 +1,5 @@
 var ddoc = {
-  _id: '_design/diseaseOntology',
+  _id: '_design/do',
   rewrites: [{
     from: '_db',
     to: '../..'

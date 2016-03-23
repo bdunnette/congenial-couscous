@@ -27,6 +27,65 @@ var parseStanza = function(stanza, getStanzaType) {
   return stanzaObject;
 };
 
+// var cradle = require('cradle');
+//   var db = new(cradle.Connection)().database('starwars');
+//
+//   db.get('vader', function (err, doc) {
+//       doc.name; // 'Darth Vader'
+//       assert.equal(doc.force, 'dark');
+//   });
+//
+//   db.save('skywalker', {
+//       force: 'light',
+//       name: 'Luke Skywalker'
+//   }, function (err, res) {
+//       if (err) {
+//           // Handle error
+//       } else {
+//           // Handle success
+//       }
+//   });
+//
+//   new(cradle.Connection)('http://living-room.couch', 5984, {
+//       cache: true,
+//       raw: false,
+//       forceSave: true,
+//       request: {
+//         //Pass through configuration to `request` library for all requests on this connection.
+//       }
+//   });
+// Defaults to 127.0.0.1:5984
+//
+// Note that you can also use cradle.setup to set a global configuration:
+//
+//   cradle.setup({
+//     host: 'living-room.couch',
+//     cache: true,
+//     raw: false,
+//     forceSave: true
+//   });
+//
+//   var c = new(cradle.Connection),
+//      cc = new(cradle.Connection)('173.45.66.92');
+
+// db.get('vader', function (err, doc) {
+//       console.log(doc);
+//   });
+//
+// db.save('vader', {
+//       name: 'darth', force: 'dark'
+//   }, function (err, res) {
+//       // Handle response
+//   });
+//
+//   db.save([
+//         { name: 'Yoda' },
+//         { name: 'Han Solo' },
+//         { name: 'Leia' }
+//     ], function (err, res) {
+//         // Handle response
+//     });
+  
 // getOBOFile: function(oboUrl) {
 //     HTTP.get(oboUrl, function(err, response) {
 //       if (response.content) {

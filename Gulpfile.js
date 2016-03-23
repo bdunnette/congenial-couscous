@@ -23,7 +23,7 @@ if (argv.username && argv.password) {
   };
 }
 
-var dbName = argv.db || 'diseaseOntology';
+var dbName = argv.db || 'do';
 var dbUrl = 'http://' + dbHost + ':' + dbPort + '/' + dbName;
 
 gulp.task('install', function() {
@@ -60,7 +60,7 @@ gulp.task('browser-sync', function() {
   browserSync({
 
     // informs browser-sync to proxy our expressjs app which would run at the following location
-    proxy: dbUrl + '/_design/diseaseOntology/_rewrite',
+    proxy: dbUrl + '/_design/do/_rewrite',
 
     // informs browser-sync to use the following port for the proxied app
     // notice that the default port is 3000, which would clash with our expressjs

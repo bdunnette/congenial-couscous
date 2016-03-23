@@ -19,7 +19,7 @@ run(function($rootScope, cornercouch) {
 });
 
 var Config = {
-  'db': 'diseaseOntology'
+  'db': 'do'
 };
 
 angular.module('diseaseOntology').constant('config', Config);
