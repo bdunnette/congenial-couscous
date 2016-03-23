@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+  argv = require('yargs').argv,
   foreach = require('gulp-foreach'),
   browserSync = require('browser-sync'),
   couchapp = require('gulp-couchapp'),
@@ -6,15 +7,24 @@ var gulp = require('gulp'),
   ensure = require('couchdb-ensure'),
   push = require('couchdb-push');
 
+var dbHost = argv.host || '127.0.0.1';
+var dbPort = argv.port || '5984';
+
 var couchappOptions = {
   attachments: 'app'
-    // host: '127.0.0.1'
-    // port: '5984'
-    // auth:{username:admin, password:admin}
 };
 
-var dbHost = 'http://127.0.0.1:5984/';
-var dbName = 'sabot';
+couchappOptions.host = dbHost;
+couchappOptions.port = dbPort;
+if (argv.username && argv.password) {
+  couchappOptions.auth = {
+    username: argv.username,
+    password: argv.password
+  };
+}
+
+var dbName = argv.db || 'sabot';
+var dbUrl = 'http://' + dbHost + ':' + dbPort + '/' + dbName;
 
 gulp.task('install', function() {
   return gulp.src(['./bower.json', './package.json'])
@@ -23,7 +33,7 @@ gulp.task('install', function() {
 
 gulp.task('push', function() {
   // ensure db exists before pushing to it
-  ensure(dbHost + dbName, function(error, response) {
+  ensure(dbUrl, function(error, response) {
     return gulp.src('couchapp.js')
       .pipe(couchapp.push(dbName, couchappOptions));
   });
@@ -34,7 +44,7 @@ gulp.task('fixtures', function() {
       read: false
     })
     .pipe(foreach(function(stream, file) {
-      push(dbHost + dbName, file.path, function(err, resp) {
+      push(dbUrl, file.path, function(err, resp) {
         if (err) {
           console.error(err)
         }
@@ -50,7 +60,7 @@ gulp.task('browser-sync', function() {
   browserSync({
 
     // informs browser-sync to proxy our expressjs app which would run at the following location
-    proxy: dbHost + dbName + '/_design/sabot/_rewrite',
+    proxy: dbUrl + '/_design/sabot/_rewrite',
 
     // informs browser-sync to use the following port for the proxied app
     // notice that the default port is 3000, which would clash with our expressjs
