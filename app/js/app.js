@@ -1,24 +1,25 @@
 'use strict';
 
 // Declare app level module which depends on views, and components
-angular.module('sabot', [
+angular.module('diseaseOntology', [
   'ngRoute',
-  'sabot.postList',
-  'sabot.postView',
-  'sabot.postEdit',
+  'diseaseOntology.diseaseList',
+  'diseaseOntology.diseaseView',
   'CornerCouch'
 ]).
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.otherwise({redirectTo: '/'});
+  $routeProvider.otherwise({
+    redirectTo: '/'
+  });
 }]).
-run(function($rootScope, cornercouch){
+run(function($rootScope, cornercouch) {
   $rootScope.couch = cornercouch();
   $rootScope.couch.session();
   $rootScope.dbName = '';
 });
 
 var Config = {
-    'db': 'sabot'
+  'db': 'diseaseOntology'
 };
 
-angular.module('sabot').constant('config', Config);
+angular.module('diseaseOntology').constant('config', Config);

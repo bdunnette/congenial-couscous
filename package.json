@@ -1,5 +1,5 @@
 {
-  "name": "sabot",
+  "name": "diseaseOntology",
   "version": "0.0.1",
   "description": "",
   "scripts": {
@@ -15,6 +15,7 @@
     "gulp-couchapp": "^0.1.0",
     "gulp-foreach": "^0.1.0",
     "gulp-install": "^0.6.0",
+    "request": "^2.69.0",
     "yargs": "^4.3.2"
   }
 }

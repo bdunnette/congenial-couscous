@@ -1,0 +1,14 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Data</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="disease in db.rows">
+      <td class="span2"><a ng-href="#/disease/{{ disease.id }}">{{ disease.id }}</a></td>
+      <td class="span6">{{ disease.value }}</td>
+    </tr>
+  </tbody>
+</table>

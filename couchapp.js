@@ -1,16 +1,27 @@
 var ddoc = {
-  _id: '_design/sabot',
-  rewrites: [
-    { from: '_db',     to: '../..' },
-    { from: '_db/*',   to: '../../*' },
-    { from: '_ddoc',   to: '' },
-    { from: '_ddoc/*', to: '*' },
-    { from: '/',       to: 'index.html' },
-    { from: '/*',      to: '*' }
-  ],
+  _id: '_design/diseaseOntology',
+  rewrites: [{
+    from: '_db',
+    to: '../..'
+  }, {
+    from: '_db/*',
+    to: '../../*'
+  }, {
+    from: '_ddoc',
+    to: ''
+  }, {
+    from: '_ddoc/*',
+    to: '*'
+  }, {
+    from: '/',
+    to: 'index.html'
+  }, {
+    from: '/*',
+    to: '*'
+  }],
   views: {
-    "posts": {
-      "map": "function(doc) {if (doc.date && doc.title) {emit(doc.date, doc);}}"
+    "diseases": {
+      "map": "function(doc) {if (doc.name) {emit(doc.name, doc);}}"
     }
   },
   shows: {},

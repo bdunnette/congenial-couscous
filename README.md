@@ -1,4 +1,4 @@
-# sabot
+# diseaseOntology
 
 A basic blog using Angular & CouchDB
 
