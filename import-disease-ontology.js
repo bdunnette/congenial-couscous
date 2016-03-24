@@ -1,4 +1,14 @@
+#!/usr/bin/env node
+
+var fs = require('fs'),
+  http = require('http'),
+  path = require('path'),
+  argv = require('yargs').argv,
+  cradle = require('cradle'),
+  db = new(cradle.Connection)().database('do');
+
 var oboUrl = "http://www.berkeleybop.org/ontologies/doid.obo";
+var oboFile = path.join(__dirname, 'doid.obo');
 
 var parseStanza = function(stanza, getStanzaType) {
   var stanzaObject = {};
@@ -29,9 +39,79 @@ var parseStanza = function(stanza, getStanzaType) {
   return stanzaObject;
 };
 
-// var cradle = require('cradle');
-//   var db = new(cradle.Connection)().database('starwars');
-//
+var getOBOFile = function(oboUrl) {
+  request(oboUrl).pipe(fs.createWriteStream(oboFile));
+};
+
+
+var parseOBOStanzas = function(oboUrl) {
+  console.log('Parsing OBO file from ' + oboUrl);
+  var oboFile = Diseases.findOne({
+    oboUrl: oboUrl
+  });
+  if (!oboFile) {
+    console.log(oboFile);
+    return oboFile;
+  }
+  var oboContent = oboFile.oboContent;
+  var stanzas = oboContent.split("\n\n");
+  var ontology = parseStanza(stanzas[0]);
+
+  Diseases.update({
+    'oboUrl': oboUrl
+  }, {
+    $set: {
+      'stanzas': stanzas.slice(1)
+    }
+  }, function(error, result) {
+    return result;
+  });
+};
+
+var parseOBOHeader = function(oboUrl) {
+  console.log('Parsing OBO file header from ' + oboUrl);
+  var oboFile = Diseases.findOne({
+    oboUrl: oboUrl
+  });
+  var stanzas = oboFile.stanzas;
+  var ontology = parseStanza(stanzas[0]);
+
+  Diseases.update({
+    'oboUrl': oboUrl
+  }, {
+    $set: {
+      'ontology': ontology
+    }
+  }, function(err, result) {
+    return result;
+  });
+};
+
+var parseOBOTerms = function(oboUrl) {
+  console.log('Parsing OBO file terms from ' + oboUrl);
+
+  terms.forEach(function(stanza) {
+    var term = parseStanza(stanza, true);
+    delete term.type;
+    Diseases.upsert({
+      'id': term.id
+    }, {
+      $set: term
+    });
+  });
+};
+
+var file = fs.createWriteStream(oboFile);
+var request = http.get(oboUrl, function(response) {
+  response.pipe(file);
+  response.on('end', function(){
+    var fileData = fs.readFileSync(oboFile);
+    console.log(fileData.toString());
+  });
+});
+
+
+
 //   db.get('vader', function (err, doc) {
 //       doc.name; // 'Darth Vader'
 //       assert.equal(doc.force, 'dark');
@@ -87,82 +167,3 @@ var parseStanza = function(stanza, getStanzaType) {
 //     ], function (err, res) {
 //         // Handle response
 //     });
-
-var getOBOFile = function(oboUrl) {
-  HTTP.get(oboUrl, function(err, response) {
-    if (response.content) {
-      Diseases.upsert({
-        'oboUrl': oboUrl
-      }, {
-        $set: {
-          'oboContent': response.content,
-          'oboUrl': oboUrl
-        }
-      }, function(error, result) {
-        return result;
-      });
-    }
-  });
-};
-
-
-var parseOBOStanzas = function(oboUrl) {
-  console.log('Parsing OBO file from ' + oboUrl);
-  var oboFile = Diseases.findOne({
-    oboUrl: oboUrl
-  });
-  if (!oboFile) {
-    console.log(oboFile);
-    return oboFile;
-  }
-  var oboContent = oboFile.oboContent;
-  var stanzas = oboContent.split("\n\n");
-  var ontology = parseStanza(stanzas[0]);
-
-  Diseases.update({
-    'oboUrl': oboUrl
-  }, {
-    $set: {
-      'stanzas': stanzas.slice(1)
-    }
-  }, function(error, result) {
-    return result;
-  });
-};
-
-var parseOBOHeader = function(oboUrl) {
-  console.log('Parsing OBO file header from ' + oboUrl);
-  var oboFile = Diseases.findOne({
-    oboUrl: oboUrl
-  });
-  var stanzas = oboFile.stanzas;
-  var ontology = parseStanza(stanzas[0]);
-
-  Diseases.update({
-    'oboUrl': oboUrl
-  }, {
-    $set: {
-      'ontology': ontology
-    }
-  }, function(err, result) {
-    return result;
-  });
-};
-
-var parseOBOTerms = function(oboUrl) {
-  console.log('Parsing OBO file terms from ' + oboUrl);
-  var oboFile = Diseases.findOne({
-    oboUrl: oboUrl
-  });
-  var terms = oboFile.stanzas;
-
-  terms.forEach(function(stanza) {
-    var term = parseStanza(stanza, true);
-    delete term.type;
-    Diseases.upsert({
-      'id': term.id
-    }, {
-      $set: term
-    });
-  });
-};
