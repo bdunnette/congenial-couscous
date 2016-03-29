@@ -1,31 +1,12 @@
-var oboUrl = "http://www.berkeleybop.org/ontologies/doid.obo";
+#!/usr/bin/env node
 
-var parseStanza = function(stanza, getStanzaType) {
-  var stanzaObject = {};
-  stanzaLines = stanza.split("\n");
-  if (getStanzaType === true) {
-    stanzaObject.type = stanzaLines.shift();
-  }
-  stanzaLines.forEach(function(line) {
-    var splitString = line.split(":");
-    var key = splitString.shift();
-    var value = splitString.join(":").replace(/^\s+/, '');
-    if (value.match(/ \! /)) {
-      value = value.split(" ! ")[0];
-    }
-    if (stanzaObject.hasOwnProperty(key) && typeof stanzaObject[key] === 'object') {
-      stanzaObject[key].push(value);
-    } else if (stanzaObject.hasOwnProperty(key)) {
-      var keyVal = stanzaObject[key];
-      stanzaObject[key] = [];
-      stanzaObject[key].push(keyVal);
-      stanzaObject[key].push(value);
-    } else {
-      stanzaObject[key] = value;
-    }
-  });
-  return stanzaObject;
-};
+var request = require('request'),
+  cradle = require('cradle');
+
+var db = new(cradle.Connection)().database('do');
+
+// var oboUrl = "http://www.berkeleybop.org/ontologies/doid.obo";
+var oboUrl = "https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/src/ontology/HumanDO.obo?raw=true";
 
 // var cradle = require('cradle');
 //   var db = new(cradle.Connection)().database('starwars');
@@ -85,81 +66,36 @@ var parseStanza = function(stanza, getStanzaType) {
 //     ], function (err, res) {
 //         // Handle response
 //     });
-  
-// getOBOFile: function(oboUrl) {
-//     HTTP.get(oboUrl, function(err, response) {
-//       if (response.content) {
-//         Diseases.upsert({
-//           'oboUrl': oboUrl
-//         }, {
-//           $set: {
-//             'oboContent': response.content,
-//             'oboUrl': oboUrl
-//           }
-//         }, function(error, result) {
-//           return result;
-//         });
-//       }
-//     });
-//   },
-//
-//   parseOBOStanzas: function(oboUrl) {
-//     console.log('Parsing OBO file from ' + oboUrl)
-//     var oboFile = Diseases.findOne({
-//       oboUrl: oboUrl
-//     });
-//     if (!oboFile) {
-//       console.log(oboFile);
-//       return oboFile;
-//     }
-//     var oboContent = oboFile.oboContent;
-//     var stanzas = oboContent.split("\n\n");
-//     var ontology = parseStanza(stanzas[0]);
-//
-//     Diseases.update({
-//       'oboUrl': oboUrl
-//     }, {
-//       $set: {
-//         'stanzas': stanzas.slice(1)
-//       }
-//     }, function(error, result) {
-//       return result;
-//     });
-//   },
-//
-//   parseOBOHeader: function(oboUrl) {
-//     console.log('Parsing OBO file header from ' + oboUrl)
-//     var oboFile = Diseases.findOne({
-//       oboUrl: oboUrl
-//     });
-//     var stanzas = oboFile.stanzas;
-//     var ontology = parseStanza(stanzas[0]);
-//
-//     Diseases.update({
-//       'oboUrl': oboUrl
-//     }, {
-//       $set: {
-//         'ontology': ontology
-//       }
-//     }, function(err, result) {
-//       return result;
-//     });
-//   },
-//
-//   parseOBOTerms: function(oboUrl) {
-//     console.log('Parsing OBO file terms from ' + oboUrl)
-//     var oboFile = Diseases.findOne({
-//       oboUrl: oboUrl
-//     });
-//     var terms = oboFile.stanzas;
-//
-//     terms.forEach(function(stanza) {
-//       var term = parseStanza(stanza, true);
-//       delete term.type;
-//       Diseases.upsert({
-//         'id': term.id
-//       }, {
-//         $set: term
-//       });
-//     });
-//   }
+
+request(oboUrl, function(error, response, body) {
+  var stanzas = body.toString().split('\n\n');
+  var terms = [];
+  stanzas.forEach(function(stanza) {
+    var stanzaLines = stanza.split('\n');
+    if (stanzaLines[0] === '[Term]') {
+      var term = {};
+      stanzaLines.slice(1).forEach(function(line) {
+          var keyValSeperatorIndex = line.indexOf(':')
+          var key = line.slice(0, keyValSeperatorIndex)
+          var val = line.slice(keyValSeperatorIndex + 1).trim()
+
+          if (term[key]) {
+            if (term[key].constructor !== Array) {
+              term[key] = new Array(term[key])
+            }
+
+            term[key].push(val)
+          } else {
+            term[key] = val
+          }
+        })
+        // console.log(term);
+      terms.push(term);
+    }
+  });
+  console.log(terms);
+  db.save(terms, function(error, response){
+    console.log(error);
+    console.log(response);
+  });
+});
