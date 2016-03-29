@@ -11,6 +11,6 @@ angular.module('diseaseOntology.diseaseView', ['ngRoute', 'ngSanitize'])
 
 .controller('diseaseViewCtrl', ['$rootScope', '$scope', 'cornercouch', '$routeParams', 'config', function($rootScope, $scope, cornercouch, $routeParams, config) {
   $scope.db = $rootScope.couch.getDB(config.db);
-    $scope.disease = $scope.db.getDoc($routeParams.postId);
+  $scope.disease = $scope.db.getDoc($routeParams.postId);
   console.log($scope.disease);
 }]);
